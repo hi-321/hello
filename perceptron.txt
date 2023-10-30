@@ -1,0 +1,344 @@
+1.To implement logic functions using single layer perceptron:
+
+import pandas as pd
+from IPython.display import display
+
+def AND_logic(inputs,func):
+    t=[]
+    for i in inputs:
+        if i[0] == 1.0 and i[1] == 1.0:
+            t.append(1.0)
+        else:
+            if func=="BINARY":
+                t.append(0.0)
+            else:
+                t.append(-1.0)
+    return t
+
+def OR_logic(inputs,func):
+    t=[]
+    for i in inputs:
+        if (i[0] == 0.0 and i[1] == 0.0) or (i[0] == -1.0 and i[1] == -1.0):
+            if func=="BINARY":
+                t.append(0.0)
+            else:
+                t.append(-1.0)
+        else:
+             t.append(1.0)
+    return t
+
+def binary_af(x,theta):
+    return 1.0 if x >= theta else 0.0
+
+def bipolar_af(x,theta):
+    if x>theta:
+        return 1.0
+    elif x <= theta:
+        return 0.0
+    else:
+        return -1.0
+
+target=[]
+weights=[]
+inputs=[]
+print("BINARY/BIPOLAR inputs:")
+input_fun=input()
+print("Enter inputs:")
+for i in range(4):
+    print("x1:")
+    x1=int(input())
+    print("x2:")
+    x2=int(input())
+    inputs.append([float(x1),float(x2)])
+print("BINARY/BIPOLAR outputs:")
+output_fun=input()
+print("Enter logic funtion:(AND/OR)")
+func=input()
+print("Enter weight1:")
+weights.append(round(float(input()),1))
+print("Enter weight2:")
+weights.append(round(float(input()),1))
+print("Enter bias:")
+b=round(float(input()),1)
+print("Enter learning rate:")
+alpha=round(float(input()),1)
+print("Enter threshold:")
+teta=float(input())
+if func=="AND":
+    target=AND_logic(inputs,output_fun)
+else:
+    target=OR_logic(inputs,output_fun)
+
+
+BINARY/BIPOLAR inputs:
+Enter inputs:
+x1:1
+x2:1
+x1:1
+x2:0
+x1:0
+x2:1
+x1:0
+x2:0
+BINARY/BIPOLAR outputs:BIPOLAR
+Enter logic funtion:(AND/OR)AND
+Enter weight1:0
+Enter weight2:0
+Enter bias:0
+Enter learning rate:1
+Enter threshold:1
+
+x1=[]
+x2=[]
+w1=[]
+w2=[]
+for i in range(len(inputs)):
+    x1.append(inputs[i][0])
+    x2.append(inputs[i][1])
+print("\nLOGIC TABLE FOR",func,"LOGIC FUNCTION\n")
+df=pd.DataFrame({"X1":x1,"X2":x2,"Target":target})
+display(df)
+print()
+print("W1:",weights[0])
+print("W2:",weights[1])
+print("BIAS:",b)
+print("LEARNING RATE:",alpha)
+print("THRESHOLD:",teta)
+
+
+LOGIC TABLE FOR AND LOGIC FUNCTION
+
+        X1      X2      Target
+0       1.0     1.0      1.0
+1       1.0     0.0     -1.0
+2       0.0     1.0     -1.0
+3       0.0     0.0     -1.0
+
+W1: 0.0
+W2: 0.0
+BIAS: 0.0
+LEARNING RATE: 1.0
+THRESHOLD: 1.0
+
+rint("Enter number of epoch:")
+num_epoch=int(input())
+epoch=1
+while(epoch<=num_epoch):
+    print("EPOCH :",epoch)
+    y_in_arr=[]
+    y_arr=[]
+    all_weights1=[]
+    all_weights2=[]
+    biass=[]
+    count=0
+    for i in range(len(inputs)):
+        y_in = float(inputs[i][0]*weights[0] + inputs[i][1]*weights[1] + b)
+        y_in_arr.append(round(y_in,1))
+        if func=="BINARY":
+            y = binary_af(y_in,teta)
+        else:
+            y = bipolar_af(y_in,teta)
+        y_arr.append(y)
+        if y!=target[i]:
+            weights[0] += (alpha * target[i] * inputs[i][0])
+            weights[0]=round(weights[0],1)
+            weights[1] += (alpha * target[i] * inputs[i][1])
+            weights[1] = round(weights[1],1)
+            b += (alpha * target[i])
+            b = round(b,1)
+        else:
+            count+=1
+        all_weights1.append(weights[0])
+        all_weights2.append(weights[1])
+        biass.append(b)
+    data=pd.DataFrame({"X1":x1,"X2":x2,"TARGET":target,"Y_IN":y_in_arr,"Y":y_arr,"W1":all_weights1,"W2":all_weights2,"BIAS":biass})
+    display(data)
+    epoch+=1
+    if count==4:
+        break
+
+OUTPUT:
+
+Enter number of epoch:3
+EPOCH : 1
+        X1      X2      TARGET  Y_IN    Y       W1      W2      BIAS
+0       1.0     1.0     1.0     0.0     0.0     1.0     1.0     1.0
+1       1.0     0.0     -1.0    2.0     1.0     0.0     1.0     0.0
+2       0.0     1.0     -1.0    1.0     0.0     0.0     0.0     -1.0
+3       0.0     0.0     -1.0    -1.0    0.0     0.0     0.0     -2.0
+EPOCH : 2
+        X1      X2      TARGET  Y_IN    Y       W1      W2      BIAS
+0       1.0     1.0     1.0     -2.0    0.0     1.0     1.0     -1.0
+1       1.0     0.0     -1.0    0.0     0.0     0.0     1.0     -2.0
+2       0.0     1.0     -1.0    -1.0    0.0     0.0     0.0     -3.0
+3       0.0     0.0     -1.0    -3.0    0.0     0.0     0.0     -4.0
+EPOCH : 3
+        X1      X2      TARGET  Y_IN    Y       W1      W2      BIAS
+0       1.0     1.0     1.0     -4.0    0.0     1.0     1.0     -3.0
+1       1.0     0.0     -1.0    -2.0    0.0     0.0     1.0     -4.0
+2       0.0     1.0     -1.0    -3.0    0.0     0.0     0.0     -5.0
+3       0.0     0.0     -1.0    -5.0    0.0     0.0     0.0     -6.0
+
+print("FINAL WEIGHTS AND BIAS ARE:")
+final=pd.DataFrame({"W1":[weights[0]],"W2":[weights[1]],"BIAS":[b]})
+display(final)
+
+FINAL WEIGHTS AND BIAS ARE:
+W1      W2      BIAS
+2.0     1.0     -1.0
+
+2.Find the weight required to perform:
+
+x1 = []
+x2 = []
+x3 = []
+x4 = []
+target = []
+count = 0
+alpha=int(input("Enter learning rate[0,1]:"))
+while(alpha>1 or alpha<0):
+    alpha=int(input("Invalid range-[0,1]:"))
+bias=int(input("Enter bias:"))
+w1=int(input("Enter weight 1:"))
+w2=int(input("Enter weight 2:"))
+w3=int(input("Enter weight 3:"))
+w4=int(input("Enter weight 4:"))
+theta=float(input("Enter threshold value:"))
+n=int(input("Enter number of inputs:"))
+m=int(input("Enter total epoch:"))
+
+for i in range(n):
+    x1.append(int(input("Enter x1 :")))
+    x2.append(int(input("Enter x2 :")))
+    x3.append(int(input("Enter x3 :")))
+    x4.append(int(input("Enter x4 :")))
+    target.append(int(input("Enter the target value :")))
+    print()
+
+w1_old = w1
+w2_old = w2
+w3_old = w3
+w4_old = w4
+bias_old = bias
+epoch = 1
+
+def activation_function(yin):
+    if theta!=0:
+        if yin > theta:
+            return 1
+        elif yin <= theta and yin >=-theta:
+            return 0
+        return -1
+    else:
+        if yin > 0:
+            return 1
+        elif yin == 0:
+            return 0
+        return -1
+
+
+def new_value(w1,w2,w3,w4,b,x1,x2,x3,x4,target):
+    values = []
+    values.append(w1 + (alpha * target * x1))
+    values.append(w2 + (alpha * target * x2))
+    values.append(w3 + (alpha * target * x3))
+    values.append(w4 + (alpha * target * x4))
+    values.append(b + (alpha * target))
+    return values
+
+
+print("-----------------------------------------------------------------------------------------------------------------------------------------")
+print("| x1\t| x2\t| x3\t| x4\t| target|yin\t|y\t|~w1\t|~w2\t|~w3\t|~w4\t|~bias\t| w1\t| w2\t| w3\t| w4\t| bias\t|")
+print("-----------------------------------------------------------------------------------------------------------------------------------------")
+
+
+while(count < n and epoch < m+1):
+    print("Epoch :",epoch,"\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t")
+    print("-----------------------------------------------------------------------------------------------------------------------------------------")
+    epoch += 1
+    for i in range(n):
+        if(count == n):
+            break
+        yin = bias + (x1[i] * w1) + (x2[i] * w2) + (x3[i] * w3) + (x4[i] * w4)
+
+        if activation_function(yin) == target[i]:
+            count+=1
+        else:
+            count=0
+            w1,w2,w3,w4,bias = new_value(w1,w2,w3,w4,bias,x1[i],x2[i],x3[i],x4[i],target[i])
+        print("| ",x1[i],"\t| ",x2[i],"\t| ",x3[i],"\t| ",x4[i],"\t| ",target[i],"\t|",yin,"\t| ",
+        activation_function(yin),"\t|",w1 - w1_old,"\t| ",w2 - w2_old,"\t| ",w3 - w3_old,"\t| ",
+        w4 - w4_old,"\t| ",bias - bias_old,"\t|",w1,"\t| ",w2,"\t| ",w3,"\t| ",w4,"\t| ",bias,"\t|")
+        print("-----------------------------------------------------------------------------------------------------------------------------------------")
+        w1_old = w1
+        w2_old = w2
+        w3_old = w3
+        w4_old = w4
+        bias_old = bias
+
+OUTPUT:
+
+Enter learning rate[0,1]:1
+Enter bias:0
+Enter weight 1:0
+Enter weight 2:0
+Enter weight 3:0
+Enter weight 4:0
+Enter threshold value:0.4
+Enter number of inputs:1
+Enter total epoch:3
+
+Enter x1 :1
+Enter x2 :1
+Enter x3 :1
+Enter x4 :1
+Enter the target value :1
+
+Enter x1 :-1
+Enter x2 :1
+Enter x3 :-1
+Enter x4 :-1
+Enter the target value :1
+
+Enter x1 :1
+Enter x2 :1
+Enter x3 :1
+Enter x4 :-1
+Enter the target value :-1
+
+Enter x1 :1
+Enter x2 :-1
+Enter x3 :-1
+Enter x4 :1
+Enter the target value :-1
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+| X1    | X2    | X3    | X4    | Target|Yin    |Y      |~W1    |~W2    |~W3    |~W4    |~Bias  | W1    | W2    | W3    | W4    | Bias  |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|Epoch : 1                                                                                                                              |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|  1    |  1    |  1    |  1    |  1    | 0     |  0    | 1     |  1    |  1    |  1    |  1    | 1     |  1    |  1    |  1    |  1    |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|  -1   |  1    |  -1   |  -1   |  1    | -1    |  -1   | -1    |  1    |  -1   |  -1   |  1    | 0     |  2    |  0    |  0    |  2    |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|  1    |  1    |  1    |  -1   |  -1   | 4     |  1    | -1    |  -1   |  -1   |  1    |  -1   | -1    |  1    |  -1   |  1    |  1    |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|  1    |  -1   |  -1   |  1    |  -1   | 1     |  1    | -1    |  1    |  1    |  -1   |  -1   | -2    |  2    |  0    |  0    |  0    |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|Epoch : 2                                                                                                                              |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|  1    |  1    |  1    |  1    |  1    | 0     |  0    | 1     |  1    |  1    |  1    |  1    | -1    |  3    |  1    |  1    |  1    |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|  -1   |  1    |  -1   |  -1   |  1    | 3     |  1    | 0     |  0    |  0    |  0    |  0    | -1    |  3    |  1    |  1    |  1    |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|  1    |  1    |  1    |  -1   |  -1   | 3     |  1    | -1    |  -1   |  -1   |  1    |  -1   | -2    |  2    |  0    |  2    |  0    |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|  1    |  -1   |  -1   |  1    |  -1   | -2    |  -1   | 0     |  0    |  0    |  0    |  0    | -2    |  2    |  0    |  2    |  0    |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|Epoch : 3                                                                                                                              |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|  1    |  1    |  1    |  1    |  1    | 2     |  1    | 0     |  0    |  0    |  0    |  0    | -2    |  2    |  0    |  2    |  0    |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|  -1   |  1    |  -1   |  -1   |  1    | 2     |  1    | 0     |  0    |  0    |  0    |  0    | -2    |  2    |  0    |  2    |  0    |
+-----------------------------------------------------------------------------------------------------------------------------------------
+|  1    |  1    |  1    |  -1   |  -1   | -2    |  -1   | 0     |  0    |  0    |  0    |  0    | -2    |  2    |  0    |  2    |  0    |
